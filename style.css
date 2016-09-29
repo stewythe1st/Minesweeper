@@ -1,3 +1,9 @@
+body{
+    font-family: sans-serif;
+    color: rgb(45, 45, 45);
+    
+}
+
 .title{
     font-weight: bold;
     font-size: 36px;
@@ -23,6 +29,7 @@
 }
 
 #gameboard{
+    position: relative;
     margin: 0 auto;
     border: solid black 2px;
 }
@@ -36,4 +43,25 @@
     width: 24px;
     height: auto;
     z-index: -1;
+}
+
+#blanket{
+    display: table-cell;
+    vertical-align: middle;
+    visibility: hidden;
+    position: absolute;
+    top: 33px;
+    bottom: 0px;
+    right: 0px;
+    left: 0px;
+    opacity: 0;
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+#blanket-text{
+    font-size: 40px;
+    height: 100%;
+    -webkit-transform: translate(0%, 40%);  
+    transform: translate(0%, 40%);
+    opacity: 1;
 }

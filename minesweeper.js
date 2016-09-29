@@ -4,7 +4,7 @@
 var h_mod = [1, 1, 1, 0, -1, -1, -1, 0];
 var w_mod = [-1, 0, 1, 1, 1, 0, -1, -1];
 var recursions;
-var gamestate; // 1 for playing (timer running) 
+var gamestate; // 0 = not yet started, 1 = playing, 2 = lost, 3 = won
 var minecount;
 var starttime;
 var revealed;
@@ -22,7 +22,7 @@ window.onload = function ()
     fill_minefield( w_input, h_input );
     //recursions = 0;
     minecount = 0;
-    gamestate = 2;
+    gamestate = 0;
     //revealed = 0;
 };
 
@@ -47,13 +47,15 @@ function update_timer()
 **********************************************/
 function square_click( w, h, event )
 {
-    if (gamestate != 1)
+    if (gamestate == 0)
     {
         gamestate = 1;
         var clock = new Date();
         starttime = clock.getTime();
         setInterval("update_timer()", 1000);
     }
+    else if(gamestate == 2) 
+        return;
     switch( event.button )
     {
         case 0:
@@ -92,14 +94,9 @@ function square_rightclick( w, h)
 **********************************************/
 function square_leftclick( w, h )
 {
-    console.log(gamestate);
     console.log( "Clicked on: (" + w + "," + h + ") - " + minefield[ w ][ h ] );
     var src = document.getElementById("minefield_" + w + "_" + h).src;
-    if( gamestate == 0)
-    {
-        return;
-    }
-    else if( src.search( "flag" ) != -1 )
+    if( src.search( "flag" ) != -1 )
     {
         return;
     }
@@ -110,10 +107,10 @@ function square_leftclick( w, h )
     else if( minefield[ w ][ h ] == 9)
     {
         reveal_all_mines();
-        gamestate = 0;
-        console.log("setting to " + gamestate);
-        document.getElementById("gameboard-overlay-inner").innerHTML = "Game Over";
-        document.getElementById("gameboard-overlay").style.visibility = "visible";
+        gamestate = 2;
+        document.getElementById( "blanket-text" ).innerHTML = "Game Over";
+        document.getElementById( "blanket" ).style.visibility = "visible";
+        fade( document.getElementById( "blanket" ) );
     }
     else
     {
@@ -175,8 +172,8 @@ function reveal( w, h )
         if(revealed == ( ( w_input * h_input ) - m_input ) )
         {
             gamestate = 3;
-            document.getElementById("gameboard-overlay-inner").innerHTML = "You Win!";
-            document.getElementById("gameboard-overlay").style.visibility = "visible";
+            document.getElementById("blanket-text").innerHTML = "You Win!";
+            document.getElementById("blanket").style.visibility = "visible";
         }
     }
 }
@@ -273,4 +270,18 @@ function generate_minefield( w, h, m )
     *    Return Minefield
     **********************************************/
     return minefield;
+}
+
+function fade(element)
+{
+    var op = 0.1;  // initial opacity
+    //element.style.display = 'block';
+    var timer = setInterval(function () {
+        if (op >= 1){
+            clearInterval(timer);
+        }
+        element.style.opacity = op;
+        element.style.filter = 'alpha(opacity=' + op * 100 + ")";
+        op += op * 0.1;
+    }, 30);
 }
