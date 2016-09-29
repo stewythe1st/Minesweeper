@@ -1,0 +1,39 @@
+.title{
+    font-weight: bold;
+    font-size: 36px;
+    text-align: center;    
+}
+
+#gameboard-header{
+    border-bottom: solid black 2px;
+    font-size: 21px;
+    font-weight: bold;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
+#timer{
+    text-align: left;
+    padding-right: 30%;
+}
+
+#minecount{
+    text-align: right;
+    padding-left: 30%;
+}
+
+#gameboard{
+    margin: 0 auto;
+    border: solid black 2px;
+}
+
+#gameboard div{
+    text-align: center;
+    padding-left: 1px;
+}
+
+#gameboard span img{
+    width: 24px;
+    height: auto;
+    z-index: -1;
+}
