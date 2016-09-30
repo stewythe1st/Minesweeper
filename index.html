@@ -14,7 +14,22 @@
             <div id="gameboard-header">
                 <span id="timer">0:00</span>
                 <span id="minecount">0/20</span>
-                <div id="blanket"><div id="blanket-text"></div></div>
+                <div id="blanket">
+                    <div id="blanket-text">
+                        Game Over
+                    </div>
+                </div>
+				<div id="menu">
+					<div id="menu-content">
+						Menu
+						<form><table>
+						<tr><td>Width:</td><td><input id="menu-w" type="number"></input></td>
+						<tr><td>Height:</td><td><input id="menu-h" type="number"></input></td>
+						<tr><td>Mines:</td><td><input id="menu-m" type="number"></input></td>
+						<tr><td colspan="2"><button id="menu-play" type="button" onclick="reset_game()">Play</button></td></tr>
+						</form>
+					</div>
+				</div>
             </div>
         </div>
     </div>

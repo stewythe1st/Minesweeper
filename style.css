@@ -1,7 +1,7 @@
 body{
     font-family: sans-serif;
     color: rgb(45, 45, 45);
-    
+    text-shadow: 2px 2px 5px white;    
 }
 
 .title{
@@ -46,9 +46,8 @@ body{
 }
 
 #blanket{
-    display: table-cell;
+    display: none;
     vertical-align: middle;
-    visibility: hidden;
     position: absolute;
     top: 33px;
     bottom: 0px;
@@ -64,4 +63,43 @@ body{
     -webkit-transform: translate(0%, 40%);  
     transform: translate(0%, 40%);
     opacity: 1;
+}
+
+#menu{
+    position: absolute;
+    top: 33px;
+    bottom: 0px;
+    right: 0px;
+    left: 0px;
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+#menu-content{
+    font-size: 30px;
+    height: 100%;
+}
+
+#menu-content table{
+	border-top: solid black 2px;
+	margin: 0 auto;
+	font-weight: bold;
+	text-align: center;
+}
+
+#menu-content input{
+    width: 80px;
+}
+
+#menu-content button{
+	border-radius: 8px;
+	font-weight: bold;
+	width: 120px;
+	height: 30px;
+}
+
+#endgame-replay{
+	border-radius: 8px;
+	font-weight: bold;
+	width: 120px;
+	height: 30px;
 }

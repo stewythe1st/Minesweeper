@@ -4,27 +4,66 @@
 var h_mod = [1, 1, 1, 0, -1, -1, -1, 0];
 var w_mod = [-1, 0, 1, 1, 1, 0, -1, -1];
 var recursions;
-var gamestate; // 0 = not yet started, 1 = playing, 2 = lost, 3 = won
-var minecount;
+var gamestate = 0; // 0 = not yet started, 1 = playing, 2 = lost, 3 = won
+var minecount = 0;
 var starttime;
 var revealed;
+var animating = 0;
+
+button_str = '<button id="endgame-replay" type="button" onclick="endgame_new_game()">Play Again</button>';
 
 /*********************************************
 *    Initial Setup
 **********************************************/
 window.onload = function ()
 {
-    w_input = 12;
-    h_input = 12;
     m_input = 20;
-    generate_minefield( w_input, h_input, m_input );
-    document.getElementById("gameboard").style.maxWidth = 24 * w_input + 1;
-    fill_minefield( w_input, h_input );
-    //recursions = 0;
-    minecount = 0;
-    gamestate = 0;
-    //revealed = 0;
+	h_input = 10;
+	w_input = 10;
+	generate_minefield( w_input, h_input, m_input );
+	document.getElementById( "gameboard" ).style.maxWidth = 24 * h_input + 1;
+	fill_minefield( w_input, h_input );
+	init_menu();
 };
+
+/*********************************************
+*    Menu Setup
+**********************************************/
+function init_menu()
+{
+	document.getElementById("menu-m").value = m_input;
+	document.getElementById("menu-h").value = h_input;
+	document.getElementById("menu-w").value = w_input;
+}
+
+/*********************************************
+*    Reset game with new parameters
+**********************************************/
+function reset_game()
+{
+    if( animating )
+    {
+        return;
+    }
+	m_input = document.getElementById( "menu-m" ).value;
+	h_input = document.getElementById( "menu-h" ).value;
+	w_input = document.getElementById( "menu-w" ).value;
+	generate_minefield( w_input, h_input, m_input );
+	document.getElementById( "gameboard" ).style.maxWidth = 24 * h_input + 1;
+	fill_minefield( w_input, h_input );
+	init_menu();
+    fade_out( document.getElementById( "menu" ) );
+    gamestate = 0;
+    minecount = 0;
+    document.getElementById( "timer" ).innerHTML = "0:00";
+    document.getElementById( "minecount" ).innerHTML = "0/" + m_input;
+}
+
+function endgame_new_game()
+{
+    fade_out( document.getElementById( "blanket" ) );
+    fade_in( document.getElementById( "menu" ) );
+}
 
 /*********************************************
 *    Handles Updating the Timer every Second
@@ -56,7 +95,7 @@ function square_click( w, h, event )
     }
     else if(gamestate == 2) 
         return;
-    switch( event.button )
+	switch( event.button )
     {
         case 0:
             square_leftclick( w, h );
@@ -67,6 +106,7 @@ function square_click( w, h, event )
         default:
             break;
     }
+	goal_test();
 }
 
 /*********************************************
@@ -108,9 +148,9 @@ function square_leftclick( w, h )
     {
         reveal_all_mines();
         gamestate = 2;
-        document.getElementById( "blanket-text" ).innerHTML = "Game Over";
+        document.getElementById( "blanket-text" ).innerHTML = "Game Over" + button_str;
         document.getElementById( "blanket" ).style.visibility = "visible";
-        fade( document.getElementById( "blanket" ) );
+        fade_in( document.getElementById( "blanket" ) );
     }
     else
     {
@@ -120,7 +160,32 @@ function square_leftclick( w, h )
 };
 
 /*********************************************
-*    reveals all Mines (called on gameover)
+*    Check if game has been won
+**********************************************/
+function goal_test()
+{
+    var i, j;
+    for( i = 0; i < w_input; i++ )
+    {
+        for( j = 0; j < h_input; j++ )
+        {
+			var square = document.getElementById("minefield_" + i + "_" + j).src;
+            if( minefield[ i ][ j ] != 9 && (square.search( "square" ) != -1 || square.search( "flag" ) != -1 ) )
+            {
+                return false;;
+            }
+        }
+    }
+	gamestate = 3;
+	reveal_all_mines();
+	document.getElementById( "blanket-text" ).innerHTML = "You Win!" + button_str;
+    document.getElementById( "blanket" ).style.visibility = "visible";
+    fade_in( document.getElementById( "blanket" ) );
+	return true;
+}
+
+/*********************************************
+*    reveals all mines (called on gameover)
 **********************************************/
 function reveal_all_mines()
 {
@@ -183,7 +248,16 @@ function reveal( w, h )
 **********************************************/
 function fill_minefield( w, h )
 {
-    var i, j;
+	var i, j;
+    var parent = document.getElementById( "gameboard" );
+    var children = parent.getElementsByTagName( "div" );
+    for( i = children.length - 1; i >= 0; i-- )
+    {
+        if( (children[ i ].id).search( "gameboard_row" ) != -1 )
+        {
+            parent.removeChild( children[ i ] );
+        }
+    }
     var id = '';
     for( i = 0; i < w; i++ )
     {
@@ -272,16 +346,44 @@ function generate_minefield( w, h, m )
     return minefield;
 }
 
-function fade(element)
+/*********************************************
+*    Fade Out
+**********************************************/
+function fade_out( element_out )
 {
-    var op = 0.1;  // initial opacity
-    //element.style.display = 'block';
-    var timer = setInterval(function () {
-        if (op >= 1){
-            clearInterval(timer);
+    animating = 1;
+    var op = 1;
+    var timer = setInterval(function()
+    {
+        if( op <= 0.01 )
+        {
+            clearInterval( timer );
+            element_out.style.display = 'none';
+            animating = 0;
         }
-        element.style.opacity = op;
-        element.style.filter = 'alpha(opacity=' + op * 100 + ")";
+        element_out.style.opacity = op;
+        element_out.style.filter = 'alpha(opacity=' + op * 100 + ")";
+        op -= op * 0.1;
+    }, 30 );
+}
+
+/*********************************************
+*    Fade In
+**********************************************/
+function fade_in( element_in )
+{
+    element_in.style.display = "inline";
+    animating = 1;
+    var op = 0.1;
+    var timer = setInterval(function ()
+    {
+        if( op >= 1 )
+        {
+            clearInterval( timer );
+            animating = 0;
+        }
+        element_in.style.opacity = op;
+        element_in.style.filter = 'alpha(opacity=' + op * 100 + ")";
         op += op * 0.1;
-    }, 30);
+    }, 30 );
 }
