@@ -32,8 +32,8 @@ window.onload = function ()
 function init_menu()
 {
 	document.getElementById("menu-m").value = m_input;
-	document.getElementById("menu-h").value = h_input;
-	document.getElementById("menu-w").value = w_input;
+	document.getElementById("menu-h").value = w_input;
+	document.getElementById("menu-w").value = h_input;
 }
 
 /*********************************************
@@ -46,10 +46,11 @@ function reset_game()
         return;
     }
 	m_input = document.getElementById( "menu-m" ).value;
-	h_input = document.getElementById( "menu-h" ).value;
-	w_input = document.getElementById( "menu-w" ).value;
+	w_input = document.getElementById( "menu-h" ).value;
+	h_input = document.getElementById( "menu-w" ).value;
 	generate_minefield( w_input, h_input, m_input );
 	document.getElementById( "gameboard" ).style.maxWidth = 24 * h_input + 1;
+	document.getElementById( "gameboard-wrapper" ).style.minWidth = 16 + 24 * h_input + 1;
 	fill_minefield( w_input, h_input );
 	init_menu();
     fade_out( document.getElementById( "menu" ) );
@@ -148,7 +149,7 @@ function square_leftclick( w, h )
     {
         reveal_all_mines();
         gamestate = 2;
-        document.getElementById( "blanket-text" ).innerHTML = "Game Over" + button_str;
+        document.getElementById( "blanket-text" ).innerHTML = "Game Over<br>" + button_str;
         document.getElementById( "blanket" ).style.visibility = "visible";
         fade_in( document.getElementById( "blanket" ) );
     }
@@ -165,20 +166,31 @@ function square_leftclick( w, h )
 function goal_test()
 {
     var i, j;
-    for( i = 0; i < w_input; i++ )
+	var goal = false;
+	var end = false;
+    for( i = 0; i < w_input && !end; i++ )
     {
-        for( j = 0; j < h_input; j++ )
+        for( j = 0; j < h_input && !end; j++ )
         {
 			var square = document.getElementById("minefield_" + i + "_" + j).src;
-            if( minefield[ i ][ j ] != 9 && (square.search( "square" ) != -1 || square.search( "flag" ) != -1 ) )
-            {
-                return false;;
-            }
+            if( minefield[ i ][ j ] != 9)
+			{
+				goal = true;
+				if(square.search( "square" ) != -1 || square.search( "flag" ) != -1 )
+				{
+					goal = false;
+					end = true;
+				}
+			}
         }
     }
+	if(!goal)
+	{
+		return false;
+	}
 	gamestate = 3;
 	reveal_all_mines();
-	document.getElementById( "blanket-text" ).innerHTML = "You Win!" + button_str;
+	document.getElementById( "blanket-text" ).innerHTML = "You Win!<br>" + button_str;
     document.getElementById( "blanket" ).style.visibility = "visible";
     fade_in( document.getElementById( "blanket" ) );
 	return true;
@@ -208,6 +220,7 @@ function reveal_all_mines()
 function reveal_blanks( w, h )
 {
     var h_new, w_new, i;
+	reveal( w, h );
     for( i = 0; i < 8; i++ )
     {
         h_new = h + h_mod[ i ];
@@ -229,16 +242,17 @@ function reveal_blanks( w, h )
 **********************************************/
 function reveal( w, h )
 {
-    var src = document.getElementById("minefield_" + w + "_" + h).src
-    if( src.search( "square.png" ) != -1 )
+    var el = document.getElementById("minefield_" + w + "_" + h);
+    if( el.src.search( "square.png" ) != -1 )
     {
-        document.getElementById("minefield_" + w + "_" + h).src = "images/" + minefield[w][h] + ".png";
+        el.src = "images/" + minefield[w][h] + ".png";
         revealed++;
         if(revealed == ( ( w_input * h_input ) - m_input ) )
         {
             gamestate = 3;
             document.getElementById("blanket-text").innerHTML = "You Win!";
             document.getElementById("blanket").style.visibility = "visible";
+			reveal_all_mines();
         }
     }
 }
@@ -258,25 +272,17 @@ function fill_minefield( w, h )
             parent.removeChild( children[ i ] );
         }
     }
-    var id = '';
+	var html = "";
     for( i = 0; i < w; i++ )
     {
-        append( "gameboard", "<div id='gameboard_row_" + i + "'>" );
+		html += "<div id='gameboard_row_" + i + "'>";
         for( j = 0; j < h; j++ )
         {
-            id = "minefield_" + i + "_" + j;
-            append( "gameboard_row_" + i, "<span><img id='" + id + "' src='images/square.png' onmousedown='square_click(" + i + "," + j + ",event)'></img></span>" );
+			html += "<span><img id='" + "minefield_" + i + "_" + j + "' src='images/square.png' onmousedown='square_click(" + i + "," + j + ",event)'></img></span>";
         }
-       append( "gameboard", "</div>" );
+		html += "</div>";
     }
-}
-
-/*********************************************
-*    Append text to a div
-**********************************************/
-function append( div, text )
-{
-    document.getElementById( div ).innerHTML = document.getElementById( div ).innerHTML + text;
+	parent.innerHTML = parent.innerHTML + html;
 }
 
 /*********************************************
@@ -355,7 +361,7 @@ function fade_out( element_out )
     var op = 1;
     var timer = setInterval(function()
     {
-        if( op <= 0.01 )
+        if( op <= 0.05 )
         {
             clearInterval( timer );
             element_out.style.display = 'none';
@@ -364,7 +370,7 @@ function fade_out( element_out )
         element_out.style.opacity = op;
         element_out.style.filter = 'alpha(opacity=' + op * 100 + ")";
         op -= op * 0.1;
-    }, 30 );
+    }, 20 );
 }
 
 /*********************************************
@@ -385,5 +391,5 @@ function fade_in( element_in )
         element_in.style.opacity = op;
         element_in.style.filter = 'alpha(opacity=' + op * 100 + ")";
         op += op * 0.1;
-    }, 30 );
+    }, 20 );
 }

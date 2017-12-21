@@ -19,13 +19,13 @@ body{
 }
 
 #timer{
-    text-align: left;
-    padding-right: 30%;
+    float: left;
+	padding-left: 10px;
 }
 
 #minecount{
-    text-align: right;
-    padding-left: 30%;
+	float: right;
+	padding-right: 10px;
 }
 
 #gameboard{
@@ -77,6 +77,8 @@ body{
 #menu-content{
     font-size: 30px;
     height: 100%;
+	-webkit-transform: translate(0%, 10%);  
+    transform: translate(0%, 10%);
 }
 
 #menu-content table{
